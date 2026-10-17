@@ -295,42 +295,43 @@ var kategori = [
     { key: "provinsi", judul: "Rute Provinsi" }
 ];
 var rute = [
-    // [tujuan, kategori, harga per orang]
-    ["Jungkat", "pantura", 25000],
-    ["Pinyuh", "pantura", 40000],
-    ["Mempawah", "pantura", 50000],
-    ["Sungai Kunyit", "pantura", 60000],
-    ["Sungai Duri", "pantura", 80000],
-    ["Singkawang", "pantura", 100000],
-    ["Selakau", "pantura", 110000],
-    ["Pemangkat", "pantura", 120000],
-    ["Tebas", "pantura", 130000],
-    ["Sambas", "pantura", 150000],
-    ["Sekurak", "pantura", 160000],
-    ["Paloh", "pantura", 180000],
-    ["Galing", "pantura", 170000],
-    ["Aruk", "pantura", 200000],
-    ["Bengkayang", "pantura", 120000],
-    ["Ledo", "pantura", 140000],
-    ["Sanggau Ledo", "pantura", 150000],
-    ["Jagoi Babang", "pantura", 220000],
+    // [tujuan, kategori, harga per orang] — harga boleh angka (Rp) atau teks ("Menyesuaikan")
+    ["Jungkat", "pantura", 100000],
+    ["Pinyuh", "pantura", 100000],
+    ["Mempawah", "pantura", 120000],
+    ["Sungai Kunyit", "pantura", 130000],
+    ["Sungai Duri", "pantura", 150000],
+    ["Singkawang", "pantura", 150000],
+    ["Selakau", "pantura", 150000],
+    ["Pemangkat", "pantura", 170000],
+    ["Tebas", "pantura", 180000],
+    ["Sambas", "pantura", 200000],
+    ["Sekurak", "pantura", 250000],
+    ["Paloh", "pantura", 300000],
+    ["Galing", "pantura", 350000],
+    ["Aruk", "pantura", 400000],
+    ["Bengkayang", "pantura", 170000],
+    ["Ledo", "pantura", 200000],
+    ["Sanggau Ledo", "pantura", 250000],
+    ["Seluas", "pantura", 300000],
+    ["Jagoi Babang", "pantura", "350.000 - 400.000"],
 
-    ["Sungai Ampar", "hulu", 90000],
-    ["Tayan", "hulu", 110000],
-    ["Sandai", "hulu", 200000],
-    ["Sungai Melayu", "hulu", 230000],
-    ["Indotani", "hulu", 180000],
-    ["Ketapang", "hulu", 300000],
-    ["Balai Karangan", "hulu", 200000],
-    ["Entikong", "hulu", 220000],
-    ["Sanggau", "hulu", 180000],
-    ["Sekadau", "hulu", 220000],
-    ["Sintang", "hulu", 280000],
+    ["Simpang Ampar", "hulu", 120000],
+    ["Tayan", "hulu", 150000],
+    ["Sandai", "hulu", 250000],
+    ["Sungai Melayu", "hulu", 350000],
+    ["Indotani", "hulu", 450000],
+    ["Ketapang", "hulu", 500000],
+    ["Balai Karangan", "hulu", 250000],
+    ["Intikong", "hulu", 350000],
+    ["Sanggau Kapuas", "hulu", 200000],
+    ["Sekadau", "hulu", 250000],
+    ["Sintang", "hulu", 300000],
     ["Putussibau", "hulu", 450000],
 
-    ["Kalteng", "provinsi", 450000],
-    ["Kaltim", "provinsi", 700000],
-    ["Kalsel", "provinsi", 650000]
+    ["Kalteng", "provinsi", "Menyesuaikan"],
+    ["Kaltim", "provinsi", "Menyesuaikan"],
+    ["Kalsel", "provinsi", "Menyesuaikan"]
 ];
 
 function rupiah(n) {
@@ -346,18 +347,23 @@ function render() {
         html += '<h5 class="fw-bold mt-4 mb-3"><span class="kat-dot"></span>' + kat.judul + '</h5>';
         html += '<div class="row g-3 mb-4">';
         daftar.forEach(function (r) {
-            var nama = r[0], harga = rupiah(r[2]);
+            var nama = r[0];
+            var isAngka = (typeof r[2] === "number");
+            // Tampilan harga di kartu
+            var hargaTampil = isAngka ? ("Rp " + rupiah(r[2]) + " <small class=\"fs-6 fw-normal text-muted\">/orang</small>") : r[2];
+            // Harga untuk pesan WhatsApp
+            var hargaPesan = isAngka ? ("Rp " + rupiah(r[2]) + " /orang") : r[2];
             var namaRute = "Pontianak \u2192 " + nama;
             var pesan = "Halo Trevel Kalbar, saya mau pesan travel.\n"
                       + "Rute: " + namaRute + "\n"
-                      + "Harga: Rp " + harga + " /orang\n"
+                      + "Harga: " + hargaPesan + "\n"
                       + "Mohon info jadwal & ketersediaan kursi ya. Terima kasih.";
             var link = "https://wa.me/" + WA + "?text=" + encodeURIComponent(pesan);
             html += ''
                 + '<div class="col-lg-3 col-md-4 col-sm-6">'
                 +   '<div class="card card-rute h-100"><div class="card-body d-flex flex-column p-3">'
                 +     '<h6 class="fw-bold mb-1">Pontianak &rarr; ' + nama + '</h6>'
-                +     '<p class="rute-price mb-3" style="font-size:1.1rem">Rp ' + harga + ' <small class="fs-6 fw-normal text-muted">/orang</small></p>'
+                +     '<p class="rute-price mb-3" style="font-size:1.1rem">' + hargaTampil + '</p>'
                 +     '<a href="' + link + '" target="_blank" rel="noopener noreferrer" class="btn btn-wa btn-sm mt-auto align-self-start">Pesan via WA</a>'
                 +   '</div></div>'
                 + '</div>';
