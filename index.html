@@ -287,72 +287,29 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script>
-// ====== Data rute (dari Pontianak) — tinggal edit di sini kalau mau ubah harga/tujuan ======
+// ====== Data rute dibaca dari file rute.json (bisa diubah lewat halaman /admin.html) ======
 var WA = "6281250325436";
-var kategori = [
-    { key: "pantura", judul: "Rute Pantura" },
-    { key: "hulu", judul: "Rute Hulu" },
-    { key: "provinsi", judul: "Rute Provinsi" }
-];
-var rute = [
-    // [tujuan, kategori, harga per orang] — harga boleh angka (Rp) atau teks ("Menyesuaikan")
-    ["Jungkat", "pantura", 100000],
-    ["Pinyuh", "pantura", 100000],
-    ["Mempawah", "pantura", 120000],
-    ["Sungai Kunyit", "pantura", 130000],
-    ["Sungai Duri", "pantura", 150000],
-    ["Singkawang", "pantura", 150000],
-    ["Selakau", "pantura", 150000],
-    ["Pemangkat", "pantura", 170000],
-    ["Tebas", "pantura", 180000],
-    ["Sambas", "pantura", 200000],
-    ["Sekurak", "pantura", 250000],
-    ["Paloh", "pantura", 300000],
-    ["Galing", "pantura", 350000],
-    ["Aruk", "pantura", 400000],
-    ["Bengkayang", "pantura", 170000],
-    ["Ledo", "pantura", 200000],
-    ["Sanggau Ledo", "pantura", 250000],
-    ["Seluas", "pantura", 300000],
-    ["Jagoi Babang", "pantura", "350.000 - 400.000"],
-
-    ["Simpang Ampar", "hulu", 120000],
-    ["Tayan", "hulu", 150000],
-    ["Sandai", "hulu", 250000],
-    ["Sungai Melayu", "hulu", 350000],
-    ["Indotani", "hulu", 450000],
-    ["Ketapang", "hulu", 500000],
-    ["Balai Karangan", "hulu", 250000],
-    ["Intikong", "hulu", 350000],
-    ["Sanggau Kapuas", "hulu", 200000],
-    ["Sekadau", "hulu", 250000],
-    ["Sintang", "hulu", 300000],
-    ["Putussibau", "hulu", 450000],
-
-    ["Kalteng", "provinsi", "Menyesuaikan"],
-    ["Kaltim", "provinsi", "Menyesuaikan"],
-    ["Kalsel", "provinsi", "Menyesuaikan"]
-];
 
 function rupiah(n) {
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function render() {
+function render(data) {
+    WA = data.wa || WA;
+    var kategori = data.kategori || [];
+    var rute = data.rute || [];
     var wrap = document.getElementById("daftar-rute");
     var html = "";
     kategori.forEach(function (kat) {
-        var daftar = rute.filter(function (r) { return r[1] === kat.key; });
+        var daftar = rute.filter(function (r) { return r.kategori === kat.key; });
         if (!daftar.length) return;
         html += '<h5 class="fw-bold mt-4 mb-3"><span class="kat-dot"></span>' + kat.judul + '</h5>';
         html += '<div class="row g-3 mb-4">';
         daftar.forEach(function (r) {
-            var nama = r[0];
-            var isAngka = (typeof r[2] === "number");
-            // Tampilan harga di kartu
-            var hargaTampil = isAngka ? ("Rp " + rupiah(r[2]) + " <small class=\"fs-6 fw-normal text-muted\">/orang</small>") : r[2];
-            // Harga untuk pesan WhatsApp
-            var hargaPesan = isAngka ? ("Rp " + rupiah(r[2]) + " /orang") : r[2];
+            var nama = r.tujuan;
+            var isAngka = (typeof r.harga === "number");
+            var hargaTampil = isAngka ? ("Rp " + rupiah(r.harga) + " <small class=\"fs-6 fw-normal text-muted\">/orang</small>") : r.harga;
+            var hargaPesan = isAngka ? ("Rp " + rupiah(r.harga) + " /orang") : r.harga;
             var namaRute = "Pontianak \u2192 " + nama;
             var pesan = "Halo Trevel Kalbar, saya mau pesan travel.\n"
                       + "Rute: " + namaRute + "\n"
@@ -373,7 +330,15 @@ function render() {
     wrap.innerHTML = html;
 }
 
-render();
+// Ambil data rute dari rute.json (ditambah ?t= supaya tidak kena cache lama)
+fetch('rute.json?t=' + Date.now())
+    .then(function (res) { return res.json(); })
+    .then(function (data) { render(data); })
+    .catch(function () {
+        document.getElementById("daftar-rute").innerHTML =
+            '<p class="text-muted">Gagal memuat daftar rute. Silakan muat ulang halaman.</p>';
+    });
+
 document.getElementById("tahun").textContent = new Date().getFullYear();
 </script>
 </body>

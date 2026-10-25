@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Rute &mdash; Trevel Kalbar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --navy:#0b1220; --orange:#ff6b00; }
+        body { background:#f4f6fa; font-family: system-ui, "Segoe UI", sans-serif; }
+        .navbar-admin { background: var(--navy); }
+        .brand { color:#fff; font-weight:800; }
+        .brand span { color: var(--orange); }
+        .card { border:0; border-radius:14px; box-shadow:0 4px 18px rgba(15,23,42,.07); }
+        .btn-orange { background: var(--orange); border:0; color:#fff; font-weight:700; }
+        .btn-orange:hover { background:#e85f00; color:#fff; }
+        .harga-col { max-width: 170px; }
+        .kat-badge { font-size:.7rem; }
+        #loginBox { max-width: 400px; margin: 8vh auto; }
+        .step { background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; padding:14px 16px; font-size:.9rem; }
+        code { background:#eef1f6; padding:1px 6px; border-radius:6px; }
+    </style>
+</head>
+<body>
+
+<!-- ====== LAYAR LOGIN ====== -->
+<div id="loginBox">
+    <div class="card">
+        <div class="card-body p-4 text-center">
+            <h4 class="brand" style="color:var(--navy)">Trevel <span>Kalbar</span></h4>
+            <p class="text-muted mb-4">Panel Admin &mdash; Kelola Rute</p>
+            <input type="password" id="pw" class="form-control form-control-lg mb-3" placeholder="Masukkan kata sandi admin" autocomplete="off">
+            <button class="btn btn-orange btn-lg w-100" onclick="cekLogin()">Masuk</button>
+            <p id="pwErr" class="text-danger small mt-2 mb-0" style="display:none">Kata sandi salah.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ====== PANEL ADMIN ====== -->
+<div id="panel" style="display:none">
+    <nav class="navbar navbar-admin py-2 mb-4">
+        <div class="container">
+            <span class="brand">Trevel <span>Kalbar</span> &middot; Admin</span>
+            <button class="btn btn-outline-light btn-sm" onclick="keluar()">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        <div class="step mb-4" id="setupBox">
+            <strong>Pengaturan awal (sekali saja):</strong>
+            Supaya perubahan bisa tersimpan ke website, tempel <em>token GitHub</em> di bawah ini.
+            Token ini seperti kunci. Minta ke pembuat website kalau belum punya.
+            <div class="input-group input-group-sm mt-2">
+                <input type="password" id="ghToken" class="form-control" placeholder="Tempel token GitHub di sini">
+                <button class="btn btn-dark" onclick="simpanToken()">Simpan Token</button>
+            </div>
+            <div class="small text-success mt-1" id="tokenOk" style="display:none">Token tersimpan di perangkat ini.</div>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <h5 class="mb-0 me-auto">Daftar Rute</h5>
+            <select id="katBaru" class="form-select form-select-sm" style="width:auto">
+                <option value="pantura">Pantura</option>
+                <option value="hulu">Hulu</option>
+                <option value="provinsi">Provinsi</option>
+            </select>
+            <input id="tujuanBaru" class="form-control form-control-sm" style="width:auto" placeholder="Nama tujuan baru">
+            <input id="hargaBaru" class="form-control form-control-sm" style="width:auto" placeholder="Harga (angka / teks)">
+            <button class="btn btn-orange btn-sm" onclick="tambah()">+ Tambah Rute</button>
+        </div>
+
+        <div class="card mb-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tujuan (dari Pontianak)</th>
+                            <th style="width:140px">Kategori</th>
+                            <th style="width:200px">Harga /orang</th>
+                            <th style="width:90px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelRute"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button class="btn btn-success btn-lg" onclick="simpanKeWebsite()">💾 Simpan &amp; Terbitkan ke Website</button>
+            <button class="btn btn-outline-secondary" onclick="unduh()">Unduh file cadangan</button>
+            <span id="statusSimpan" class="ms-2"></span>
+        </div>
+        <p class="text-muted small mt-2">Setelah klik "Simpan &amp; Terbitkan", tunggu 1-2 menit lalu cek website. Harga baru otomatis muncul.</p>
+    </div>
+</div>
+
+<script>
+// ====== PENGATURAN — ganti sesuai punyamu ======
+var SANDI_ADMIN = "trevelkalbar2026";              // kata sandi masuk panel admin
+var GH_OWNER = "apatkandika4-maker";               // pemilik repo GitHub
+var GH_REPO  = "TrevelMobil";                      // nama repo
+var GH_FILE  = "rute.json";                        // file data rute
+var GH_BRANCH = "main";
+// ===============================================
+
+var data = null;      // isi rute.json
+var fileSha = null;   // sha file (dibutuhkan GitHub untuk update)
+
+// ---------- Login ----------
+function cekLogin() {
+    var pw = document.getElementById("pw").value;
+    if (pw === SANDI_ADMIN) {
+        sessionStorage.setItem("tk_admin", "1");
+        bukaPanel();
+    } else {
+        document.getElementById("pwErr").style.display = "block";
+    }
+}
+function keluar() { sessionStorage.removeItem("tk_admin"); location.reload(); }
+
+function bukaPanel() {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    var t = localStorage.getItem("tk_ghtoken");
+    if (t) { document.getElementById("ghToken").value = t; document.getElementById("tokenOk").style.display = "block"; }
+    muatData();
+}
+
+// ---------- Token GitHub ----------
+function simpanToken() {
+    var t = document.getElementById("ghToken").value.trim();
+    if (!t) return;
+    localStorage.setItem("tk_ghtoken", t);
+    document.getElementById("tokenOk").style.display = "block";
+}
+
+// ---------- Muat data rute ----------
+function muatData() {
+    fetch("rute.json?t=" + Date.now())
+        .then(function (r) { return r.json(); })
+        .then(function (d) { data = d; gambarTabel(); })
+        .catch(function () { alert("Gagal memuat data rute."); });
+}
+
+function gambarTabel() {
+    var tb = document.getElementById("tabelRute");
+    tb.innerHTML = "";
+    data.rute.forEach(function (r, i) {
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+            '<td><input class="form-control form-control-sm" value="' + esc(r.tujuan) + '" onchange="ubah(' + i + ',\'tujuan\',this.value)"></td>' +
+            '<td><select class="form-select form-select-sm" onchange="ubah(' + i + ',\'kategori\',this.value)">' +
+                opt("pantura", r.kategori) + opt("hulu", r.kategori) + opt("provinsi", r.kategori) +
+            '</select></td>' +
+            '<td><input class="form-control form-control-sm" value="' + esc(String(r.harga)) + '" onchange="ubahHarga(' + i + ',this.value)"></td>' +
+            '<td><button class="btn btn-outline-danger btn-sm" onclick="hapus(' + i + ')">Hapus</button></td>';
+        tb.appendChild(tr);
+    });
+}
+function opt(val, cur) {
+    var label = val.charAt(0).toUpperCase() + val.slice(1);
+    return '<option value="' + val + '"' + (val === cur ? ' selected' : '') + '>' + label + '</option>';
+}
+function esc(s) { return String(s).replace(/"/g, '&quot;'); }
+
+// ---------- Edit ----------
+function ubah(i, field, val) { data.rute[i][field] = val; }
+function ubahHarga(i, val) {
+    val = val.trim();
+    // Kalau isinya angka murni -> simpan sebagai angka, selain itu simpan sebagai teks
+    var angka = val.replace(/[^0-9]/g, "");
+    if (angka !== "" && angka === val.replace(/\./g, "")) {
+        data.rute[i].harga = parseInt(angka, 10);
+    } else {
+        data.rute[i].harga = val;
+    }
+}
+function tambah() {
+    var tujuan = document.getElementById("tujuanBaru").value.trim();
+    var kat = document.getElementById("katBaru").value;
+    var hargaRaw = document.getElementById("hargaBaru").value.trim();
+    if (!tujuan) { alert("Isi nama tujuan dulu."); return; }
+    var harga = hargaRaw;
+    var angka = hargaRaw.replace(/[^0-9]/g, "");
+    if (angka !== "" && angka === hargaRaw.replace(/\./g, "")) harga = parseInt(angka, 10);
+    data.rute.push({ tujuan: tujuan, kategori: kat, harga: harga });
+    document.getElementById("tujuanBaru").value = "";
+    document.getElementById("hargaBaru").value = "";
+    gambarTabel();
+}
+function hapus(i) {
+    if (confirm("Hapus rute " + data.rute[i].tujuan + "?")) { data.rute.splice(i, 1); gambarTabel(); }
+}
+
+// ---------- Unduh cadangan ----------
+function unduh() {
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "rute.json";
+    a.click();
+}
+
+// ---------- Simpan ke GitHub (otomatis terbit) ----------
+function simpanKeWebsite() {
+    var token = localStorage.getItem("tk_ghtoken");
+    if (!token) { alert("Tempel token GitHub dulu di kotak pengaturan di atas."); return; }
+    var status = document.getElementById("statusSimpan");
+    status.innerHTML = '<span class="text-muted">Menyimpan...</span>';
+
+    var api = "https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + GH_FILE;
+
+    // 1) Ambil sha file terbaru
+    fetch(api + "?ref=" + GH_BRANCH, { headers: { Authorization: "token " + token } })
+        .then(function (r) { return r.json(); })
+        .then(function (info) {
+            var konten = JSON.stringify(data, null, 2);
+            var b64 = btoa(unescape(encodeURIComponent(konten)));
+            var body = {
+                message: "Update rute dari panel admin",
+                content: b64,
+                branch: GH_BRANCH
+            };
+            if (info && info.sha) body.sha = info.sha;
+            return fetch(api, {
+                method: "PUT",
+                headers: { Authorization: "token " + token, "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+        })
+        .then(function (r) {
+            if (r.ok) {
+                status.innerHTML = '<span class="text-success fw-bold">✓ Tersimpan! Website akan update dalam 1-2 menit.</span>';
+            } else {
+                return r.json().then(function (e) {
+                    status.innerHTML = '<span class="text-danger">Gagal: ' + (e.message || "cek token") + '</span>';
+                });
+            }
+        })
+        .catch(function () { status.innerHTML = '<span class="text-danger">Gagal menyimpan. Cek koneksi/token.</span>'; });
+}
+
+// ---------- Mulai ----------
+if (sessionStorage.getItem("tk_admin") === "1") { bukaPanel(); }
+document.getElementById("pw").addEventListener("keydown", function (e) { if (e.key === "Enter") cekLogin(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "wa": "6281250325436",
+  "kategori": [
+    { "key": "pantura", "judul": "Rute Pantura" },
+    { "key": "hulu", "judul": "Rute Hulu" },
+    { "key": "provinsi", "judul": "Rute Provinsi" }
+  ],
+  "rute": [
+    { "tujuan": "Jungkat", "kategori": "pantura", "harga": 100000 },
+    { "tujuan": "Pinyuh", "kategori": "pantura", "harga": 100000 },
+    { "tujuan": "Mempawah", "kategori": "pantura", "harga": 120000 },
+    { "tujuan": "Sungai Kunyit", "kategori": "pantura", "harga": 130000 },
+    { "tujuan": "Sungai Duri", "kategori": "pantura", "harga": 150000 },
+    { "tujuan": "Singkawang", "kategori": "pantura", "harga": 150000 },
+    { "tujuan": "Selakau", "kategori": "pantura", "harga": 150000 },
+    { "tujuan": "Pemangkat", "kategori": "pantura", "harga": 170000 },
+    { "tujuan": "Tebas", "kategori": "pantura", "harga": 180000 },
+    { "tujuan": "Sambas", "kategori": "pantura", "harga": 200000 },
+    { "tujuan": "Sekurak", "kategori": "pantura", "harga": 250000 },
+    { "tujuan": "Paloh", "kategori": "pantura", "harga": 300000 },
+    { "tujuan": "Galing", "kategori": "pantura", "harga": 350000 },
+    { "tujuan": "Aruk", "kategori": "pantura", "harga": 400000 },
+    { "tujuan": "Bengkayang", "kategori": "pantura", "harga": 170000 },
+    { "tujuan": "Ledo", "kategori": "pantura", "harga": 200000 },
+    { "tujuan": "Sanggau Ledo", "kategori": "pantura", "harga": 250000 },
+    { "tujuan": "Seluas", "kategori": "pantura", "harga": 300000 },
+    { "tujuan": "Jagoi Babang", "kategori": "pantura", "harga": "350.000 - 400.000" },
+
+    { "tujuan": "Simpang Ampar", "kategori": "hulu", "harga": 120000 },
+    { "tujuan": "Tayan", "kategori": "hulu", "harga": 150000 },
+    { "tujuan": "Sandai", "kategori": "hulu", "harga": 250000 },
+    { "tujuan": "Sungai Melayu", "kategori": "hulu", "harga": 350000 },
+    { "tujuan": "Indotani", "kategori": "hulu", "harga": 450000 },
+    { "tujuan": "Ketapang", "kategori": "hulu", "harga": 500000 },
+    { "tujuan": "Balai Karangan", "kategori": "hulu", "harga": 250000 },
+    { "tujuan": "Intikong", "kategori": "hulu", "harga": 350000 },
+    { "tujuan": "Sanggau Kapuas", "kategori": "hulu", "harga": 200000 },
+    { "tujuan": "Sekadau", "kategori": "hulu", "harga": 250000 },
+    { "tujuan": "Sintang", "kategori": "hulu", "harga": 300000 },
+    { "tujuan": "Putussibau", "kategori": "hulu", "harga": 450000 },
+
+    { "tujuan": "Kalteng", "kategori": "provinsi", "harga": "Menyesuaikan" },
+    { "tujuan": "Kaltim", "kategori": "provinsi", "harga": "Menyesuaikan" },
+    { "tujuan": "Kalsel", "kategori": "provinsi", "harga": "Menyesuaikan" }
+  ]
+}
